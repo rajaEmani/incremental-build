@@ -1,5 +1,6 @@
 package com.ayra.incrementalbuild;
 
+import javax.inject.Singleton;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,28 +8,17 @@ import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
-
+@SuppressWarnings("unused")
+@Singleton
 class ManifestFileEditor {
+
     private List<String> editedClasspath = new ArrayList<>();
     private List<String> editedClasspathForTraversing = new ArrayList<>();
-    private String releaseVersion;
-    private boolean manifestChangeForVasco;
 
-    ManifestFileEditor() {
-        init();
-    }
-
-    private void init() {
-        ConfigLoader configLoader = new ConfigLoader();
-        IConfig config = configLoader.getConfig();
-        releaseVersion = config.getReleaseVersion();
-        manifestChangeForVasco = Boolean.parseBoolean(config.getManifestChangeForVasco());
-    }
-
-    void editManifestFile(File jarFile, List<String> changedJars,File jarFileforManifest) {
+    void editManifestFile(File jarFile, List<String> changedJars, File jarFileForManifest, String releaseVersion) {
         if (changedJars.size() > 0) {
             try {
-                FileInputStream fileInputStream = new FileInputStream(jarFileforManifest);
+                FileInputStream fileInputStream = new FileInputStream(jarFileForManifest);
                 JarInputStream jarStream = new JarInputStream(fileInputStream);
                 Manifest mf = jarStream.getManifest();
                 String[] classPaths = mf.getMainAttributes().getValue("Class-Path").split(" ");
@@ -42,29 +32,25 @@ class ManifestFileEditor {
                         if (p.contains(s)) {
                             String[] jarAttributes = p.split("-");
                             jarAttributes[jarAttributes.length - 1] = releaseVersion + "." + "jar";
-                            String jarName = "";
+                            StringBuilder jarName = new StringBuilder();
                             for (String f : jarAttributes) {
-                                if (jarName.equals("")) {
-                                    jarName = f;
+                                if (jarName.toString().equals("")) {
+                                    jarName = new StringBuilder(f);
                                 } else {
-                                    jarName += "-" + f;
+                                    jarName.append("-").append(f);
                                 }
                             }
-                            p = jarName;
+                            p = jarName.toString();
                             editedClasspath.remove(oldClasspath);
                             editedClasspath.add(p);
                         }
                     }
                 }
-                String classPathValue = "";
+                StringBuilder classPathValue = new StringBuilder();
                 for (String s : editedClasspath) {
-                    classPathValue = classPathValue + " " + s;
+                    classPathValue.append(" ").append(s);
                 }
-                if(jarFile.getName().contains("metSwingClient") && manifestChangeForVasco)
-                {
-                    classPathValue = classPathValue+" "+ "lib/identikeysoapclient-1.0.jar";
-                }
-                mf.getMainAttributes().putValue("Class-Path", classPathValue);
+                mf.getMainAttributes().putValue("Class-Path", classPathValue.toString());
                 File newManifestFile = writeToManifestFile(jarFile.getParentFile(), mf);
                 updateJarWithNewManifest(jarFile, newManifestFile);
             } catch (Exception e) {
@@ -95,7 +81,6 @@ class ManifestFileEditor {
                 }
             }
             out.print("\n");
-
             out.println();
         } catch (IOException e) {
             e.printStackTrace();

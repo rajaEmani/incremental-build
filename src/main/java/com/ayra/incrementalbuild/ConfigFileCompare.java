@@ -20,7 +20,7 @@ class ConfigFileCompare {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             FileInputStream fis = new FileInputStream(filepath);
             byte[] dataBytes = new byte[1024];
-            int nread = 0;
+            int nread;
 
             while ((nread = fis.read(dataBytes)) != -1)
                 md.update(dataBytes, 0, nread);

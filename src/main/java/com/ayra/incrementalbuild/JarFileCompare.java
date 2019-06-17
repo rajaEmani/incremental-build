@@ -17,12 +17,6 @@ import java.util.zip.CRC32;
 
 class JarFileCompare {
 
-    JarFileCompare(File jar1, File jar2, File space) {
-        this.jar1 = jar1;
-        this.jar2 = jar2;
-        this.space = space;
-    }
-
     private File jar1;
     private File jar2;
     private File space;
@@ -30,24 +24,23 @@ class JarFileCompare {
     private List<String> differentialFiles = new ArrayList<>();
     private String jarName;
 
+    JarFileCompare(File jar1, File jar2, File space) {
+        this.jar1 = jar1;
+        this.jar2 = jar2;
+        this.space = space;
+    }
+
     private File decompileJar(File jarFile, String num) {
         List<String> dosCommand = new ArrayList<>();
         dosCommand.add("jar");
         dosCommand.add("xf");
         dosCommand.add(jarFile.getPath());
-        
-        if (jarFile.getName().equals("metSwingClient.jar") || jarFile.getName().equals("metApplication.jar")) {
-            jarName = jarFile.getName().split("\\.")[0];
-        } else {
-            jarName = jarFile.getName().split("-")[0];
-        }
+        jarName = jarFile.getName().split("-")[0];
         String jarDirectory = space.getPath() + "\\" + jarName + num;
         File file = new File(jarDirectory);
-        boolean mkdir = file.mkdir();
-
+        file.mkdir();
         CommandRunner commandRunner = new CommandRunner();
         commandRunner.runCommand(dosCommand, file);
-
         return file;
     }
 
@@ -56,12 +49,11 @@ class JarFileCompare {
         if (dir.isDirectory()) {
             String[] children = dir.list();
             for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir (new File(dir, children[i]));
+                boolean success = deleteDir(new File(dir, children[i]));
 
                 if (!success) {
                     return false;
-                }
-                else{
+                } else {
                     FileUtils.deleteDirectory(dir);
                     return true;
                 }
@@ -85,7 +77,7 @@ class JarFileCompare {
             deleteDir(jarDecompileFolder1);
             deleteDir(jarDecompileFolder2);
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
 
         differentialFiles.remove("build.properties");
@@ -105,15 +97,15 @@ class JarFileCompare {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             FileInputStream fis = new FileInputStream(filepath);
             byte[] dataBytes = new byte[1024];
-            int nread = 0;
-
+            int nread;
             while ((nread = fis.read(dataBytes)) != -1)
                 md.update(dataBytes, 0, nread);
 
             byte[] mdbytes = md.digest();
 
-            for (int i = 0; i < mdbytes.length; i++)
-                sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
+            for (byte mdbyte : mdbytes) {
+                sb.append(Integer.toString((mdbyte & 0xff) + 0x100, 16).substring(1));
+            }
         } catch (NoSuchAlgorithmException | IOException e) {
             e.printStackTrace();
         }
@@ -122,8 +114,8 @@ class JarFileCompare {
 
     private long calculateCRC(File filename) {
         final int SIZE = 16 * 1024;
-        try (FileInputStream in = new FileInputStream(filename);) {
-            FileChannel channel = in .getChannel();
+        try (FileInputStream in = new FileInputStream(filename)) {
+            FileChannel channel = in.getChannel();
             CRC32 crc = new CRC32();
             int length = (int) channel.size();
             MappedByteBuffer mb = channel.map(FileChannel.MapMode.READ_ONLY, 0, length);
@@ -155,9 +147,9 @@ class JarFileCompare {
                         try {
                             String s1 = calculateCheckSum(f).trim();
                             String s2 = calculateCheckSum(previousVersionFile).trim();
-                            long m1=calculateCRC(f);
-                            long m2=calculateCRC(previousVersionFile);
-                            if (!s1.equals(s2) && m1!=m2) {
+                            long m1 = calculateCRC(f);
+                            long m2 = calculateCRC(previousVersionFile);
+                            if (!s1.equals(s2) && m1 != m2) {
                                 try {
                                     differentialFiles.add(f.getName());
                                 } catch (Exception e) {

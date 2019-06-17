@@ -1,37 +1,36 @@
 package com.ayra.incrementalbuild;
 
+import com.ayra.incrementalbuild.config.Config;
+import com.ayra.incrementalbuild.config.IConfig;
+
+import javax.inject.Singleton;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.File;
 
+@Singleton
 class ConfigLoader {
 
     private final static String PATH = "config/config.xml";
-    private IConfig config = null;
+    private IConfig config;
 
     ConfigLoader() {
-        getDataFromConfigXML(PATH);
+        getDataFromConfigXML();
     }
 
-    private void getDataFromConfigXML(String xmlFile) {
-        File file = new File(xmlFile);
-        IConfig config_ = null;
+    private void getDataFromConfigXML() {
+        File file = new File(PATH);
         try {
             JAXBContext context = JAXBContext.newInstance(Config.class);
             Unmarshaller um = context.createUnmarshaller();
-            config_ = (IConfig) um.unmarshal(file);
-            setConfig(config_);
+            this.config = (IConfig) um.unmarshal(file);
         } catch (JAXBException ex) {
             ex.printStackTrace();
         }
     }
 
-    private void setConfig(IConfig config) {
-        this.config = config;
-    }
-
     IConfig getConfig() {
-        return config;
+        return this.config;
     }
 }

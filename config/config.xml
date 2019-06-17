@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
-    <previousServerPath>C:\Users\rajemani\Videos\Previous\metApplication-1.2.3.0.0-bin</previousServerPath>
-    <presentServerPath>C:\Users\rajemani\Videos\Present\metApplication-1.2.3.0.0-bin</presentServerPath>
-    <previousClientPath>C:\Users\rajemani\Videos\Previous\metSwingClient-1.2.3.0.0-bin</previousClientPath>
-    <presentClientPath>C:\Users\rajemani\Videos\Present\metSwingClient-1.2.3.0.0-bin</presentClientPath>
-    <releaseVersion>1.2.3.4.0</releaseVersion>
-    <!--'false' flag value if jar should be replaced in same previous folder else 'true'-->
-    <flag>true</flag>
-    <!--if flag value is true  provide the path for differential jars-->
-    <incrementalSeverPath>D:\incrementalJars\server</incrementalSeverPath>
-    <incrementalClientPath>D:\incrementalJars\client</incrementalClientPath>
-    <manifestChangeForVasco>false</manifestChangeForVasco>
+    <modules>
+        <module>
+            <releasePathPrevious>a</releasePathPrevious>
+            <releasePathPresent>b</releasePathPresent>
+            <incrementalJarsPath>c</incrementalJarsPath>
+            <releaseVersion>1</releaseVersion>
+        </module>
+        <module>
+            <releasePathPrevious>d</releasePathPrevious>
+            <releasePathPresent>e</releasePathPresent>
+            <incrementalJarsPath>f</incrementalJarsPath>
+            <releaseVersion>2</releaseVersion>
+        </module>
+    </modules>
 </config>

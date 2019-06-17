@@ -11,7 +11,7 @@ class CommandRunner {
             ProcessBuilder pb = new ProcessBuilder(dosCommand);
             pb.directory(workingDirectory);
             pb.redirectErrorStream(true);
-            Process p = pb.start();
+            pb.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
